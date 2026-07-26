@@ -28,10 +28,16 @@ trait QueryCacheable
     public static function bootQueryCacheable()
     {
         /** @var \Illuminate\Database\Eloquent\Model $this */
-        if (isset(static::$flushCacheOnUpdate) && static::$flushCacheOnUpdate) {
-            static::observe(
+        if (isset(static::$flushCacheOnUpdate) && static::$flushCacheOnUpdate) {           
+           $registerObserver = fn () => static::observe(
                 static::getFlushQueryCacheObserver()
-            );
+           );
+   
+           if (method_exists(static::class, 'whenBooted')) {
+               static::whenBooted($registerObserver);
+           } else {
+               $registerObserver();
+           }
         }
     }
 
